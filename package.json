@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-config-json": "node scripts/configJsonBuilder.js"
   },
   "author": "Michoel Samuels",
   "license": "ISC",
@@ -22,7 +23,6 @@
   },
   "dependencies": {
     "alpinejs": "^2.7.3",
-    "clipboard": "^2.0.6",
     "tailwindcss": "^1.9.6"
   }
 }

@@ -1,0 +1,49 @@
+{
+  "title": "Welcome to Conference 2020",
+  "eventTimestamps": {
+    "start": "2020-11-19T12:00:00Z",
+    "end": "2020-11-20T12:00:00Z"
+  },
+  "donateDetails": {
+    "title": "Donate Now",
+    "url": "https://my-conf.com/donate/"
+  },
+  "channels": [
+    {
+      "channelTitle": "Channel A",
+      "scheduleModalTitle": "Channel A Schedule",
+      "channelSubject": "Speakers",
+      "youTubeUrl": "https://youtube.com",
+      "connectionDetails": {
+        "joinUrl": "https://us02web.zoom.us/j/89615047967",
+        "zoomId": "345 183 6782",
+        "zoomPassword": "2020"
+      },
+      "sessionScheduleFile": "channelA.tsv"
+    },
+    { 
+      "channelTitle": "Channel B",
+      "scheduleModalTitle": "Channel B Schedule",
+      "channelSubject": "Panels & Workshops",
+      "youTubeUrl": "https://youtube.com",
+      "connectionDetails": {
+        "joinUrl": "https://us02web.zoom.us/j/86198091001?pwd=a00ybng1VWxmaUFoMXFTblFTR25XQT09",
+        "zoomId": "861 9809 1001",
+        "zoomPassword": "2020"
+      },
+      "sessionScheduleFile": "channelB.tsv"
+    },
+    {
+      "channelTitle": "Channel C",
+      "scheduleModalTitle": "Channel C Schedule",
+      "channelSubject": "International",
+      "youTubeUrl": "",
+      "connectionDetails": {
+        "joinUrl": "https://us02web.zoom.us/j/87588868781?pwd=RUZHeTIvWjR0aytjV0lUYzRQL2c4UT09",
+        "zoomId": "875 8886 8781",
+        "zoomPassword": "2020"
+      },
+      "sessionScheduleFile": "channelC.tsv"
+    }
+  ] 
+}

@@ -48,7 +48,7 @@ const productionBuild = series(
 
 
 function buildProdCss() {
-  return src(['src/*.scss'])
+  return src(['src/*.scss', 'src/*.css'])
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss([
       require('tailwindcss'),
@@ -62,7 +62,8 @@ function buildProdCss() {
 function buildProdJs() {
   return src([
     "node_modules/alpinejs/dist/alpine.js",
-    "node_modules/clipboard/dist/clipboard.js",
+    "src/javascript/bootstrap.min.js",
+    "src/javascript/timeDifference.js"
   ]).
     pipe(concat("scripts.js")).
     pipe(terser()).
@@ -70,39 +71,24 @@ function buildProdJs() {
 }
 
 async function buildProdHtml() {
-  const jsonSchedule = JSON.parse(fs.readFileSync("./test_data/meetingsNext24Hours.json").toString());
-  const scheduleJson = `const JSON_SCHEDULE=${JSON.stringify(jsonSchedule)}`
+  const gitCommitHash = execSync('git rev-parse HEAD').toString();
+  const configJson = "CHANNEL_CONFIG=" + fs.readFileSync("./config/config.built.json").toString();
 
-  const sessionCardPartial = fs.readFileSync("./src/partials/meeting-card.html").toString();
-
-  const javascriptToInline = [
-    "./src/javascript/timeDifference.js",
-    "./src/javascript/categorizeSessions.js"
-  ].map(filePath => fs.readFileSync(filePath).toString()).
-  join(" ");
-
-  const minified = await minify(javascriptToInline, { sourceMap: false });
-  const inlinedJsScriptTag = `<script>${minified.code}</script>`;
-
-  const stdout = execSync('git rev-parse HEAD').toString();
-  console.log(stdout);
-  // if(stderr) throw stderr;
+  const mainHtmlPartial = fs.readFileSync("./src/partials/main.html");
 
   const buildInfo = {
     buildType: "prod",
     builtAt: new Date().toISOString(),
-    commitHash: stdout
-  }
+    commitHash: gitCommitHash
+  };
 
   return src('src/index.html').
+    pipe(replace("<!-- INJECT_MAIN_HTML --->", mainHtmlPartial)).
+    pipe(replace("/* INJECT_CONFIG_JSON */", configJson)).
+    pipe(replace("/* INJECT_BUILD_INFO */", `window.BUILD_INFO=${JSON.stringify(buildInfo)};`)).
+    pipe(replace("<!-- TAILWIND_DEV -->", "")).
     pipe(replace("<!-- JS_LIBS -->", `<script src="scripts.js"></script>`)).
-    pipe(replace("<!-- FONTS -->", `<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,500;0,700;1,400;1,500;1,700&display=swap" rel="stylesheet">`)).
     pipe(replace("<!-- CSS -->", `<link rel="stylesheet" href="styles.css">`)).
-    pipe(replace("<!-- SESSION_CARD -->", sessionCardPartial)).
-    pipe(replace("<!-- JS_INLINE -->", inlinedJsScriptTag)).
-    pipe(replace("/* INJECT_BUILD_INFO */", `window.BUILD_INFO=${JSON.stringify(buildInfo)}`)).
-    // pipe(replace("/* INJECT_SCHEDULE_JSON */", scheduleJson)). // Schedule is injected by automated rebuild Lambda
-    pipe(rename("index.template.html")).
     pipe(dest('dist'));
 }
 
@@ -126,39 +112,40 @@ async function buildHtml() {
   src("node_modules/alpinejs/dist/alpine.js")
     .pipe(symlink('tmp/'));
   
-    src("node_modules/clipboard/dist/clipboard.js")
-    .pipe(symlink('tmp/'));
-    const scheduleJson = (fs.readFileSync("./test_data/meetingsNext24Hours.json").toString());
-  
-    const jsonToInject = `const JSON_SCHEDULE=${scheduleJson}`
 
-    const sessionCardPartial = fs.readFileSync("./src/partials/meeting-card.html").toString();
+  src("src/bootstrap-theme.min.css")
+    .pipe(symlink('tmp/'));
   
-    const javascriptToInline = [
-      "./src/javascript/timeDifference.js",
-      "./src/javascript/categorizeSessions.js"
-    ].map(filePath => fs.readFileSync(filePath).toString()).
-    join(" ");
+  src("src/bootstrap.min.css")
+    .pipe(symlink('tmp/'));
   
-    // const minified = await minify(javascriptToInline, { sourceMap: false });
+  src("src/javascript/bootstrap.min.js")
+    .pipe(symlink('tmp/'));
+  
+  
+  
+    const javascriptToInline = fs.readFileSync("src/javascript/timeDifference.js");
     const inlinedJsScriptTag = `<script>${javascriptToInline}</script>`;
-  
+
+    const mainHtmlPartial = fs.readFileSync("./src/partials/main.html");
+    const configJson = "CHANNEL_CONFIG=" + fs.readFileSync("./config/config.built.json").toString();
+
     const buildInfo = {
       buildType: "dev",
       builtAt: new Date().toISOString(),
       commitHash: ""
     }
 
+
     // Inject a link to the stylesheet into the HTML
     return src('src/index.html').
-      pipe(replace("<!-- TAILWIND_DEV -->", "<link rel=\"stylesheet\" href=\"tailwind_full.css\">")).
-      pipe(replace("<!-- JS_LIBS -->", `<script src=\"alpine.js\"></script><script src=\"clipboard.js\"></script>`)).
-      pipe(replace("<!-- FONTS -->", `<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,500;0,700;1,400;1,500;1,700&display=swap" rel="stylesheet">`)).
-      pipe(replace("<!-- CSS -->", `<link rel="stylesheet" href="styles.css">`)).
-      pipe(replace("/* INJECT_SCHEDULE_JSON */", jsonToInject)).
-      pipe(replace("<!-- SESSION_CARD -->", sessionCardPartial)).
-      pipe(replace("<!-- JS_INLINE -->", inlinedJsScriptTag)).
+      pipe(replace("<!-- INJECT_MAIN_HTML --->", mainHtmlPartial)).
+      pipe(replace("/* INJECT_CONFIG_JSON */", configJson)).
       pipe(replace("/* INJECT_BUILD_INFO */", `window.BUILD_INFO=${JSON.stringify(buildInfo)};`)).
+      pipe(replace("<!-- TAILWIND_DEV -->", "<link rel=\"stylesheet\" href=\"tailwind_full.css\">")).
+      pipe(replace("<!-- JS_LIBS -->", `<script src=\"alpine.js\"></script><script src=\"bootstrap.min.js\"></script>`)).
+      pipe(replace("<!-- CSS -->", `<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="bootstrap.min.css"><link rel="stylesheet" href="bootstrap-theme.min.css">`)).
+      pipe(replace("<!-- JS_INLINE -->", inlinedJsScriptTag)).
       pipe(dest('tmp'));
 }
 
