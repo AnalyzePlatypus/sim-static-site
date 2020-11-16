@@ -65,3 +65,25 @@ deploy.sh # Builds and uploads to S3
 ## Appendixes
 
 ### Deploying on Wordpress
+
+1. `gulp build`
+2. Copy the contents of `/dist` to `/wp-content/themes/sim-static/`
+3. In the page you'd like to embed, drop in the following code in HTML blocks:
+
+```html
+<script>
+// csi.min.js 
+// From https://github.com/LexmarkWeb/csi.js
+window.onload=function(){function a(a,b){var c=/^(?:file):/,d=new XMLHttpRequest,e=0;d.onreadystatechange=function(){4==d.readyState&&(e=d.status),c.test(location.href)&&d.responseText&&(e=200),4==d.readyState&&200==e&&(a.outerHTML=d.responseText)};try{d.open("GET",b,!0),d.send()}catch(f){}}var b,c=document.getElementsByTagName("*");for(b in c)c[b].hasAttribute&&c[b].hasAttribute("data-include")&&a(c[b],c[b].getAttribute("data-include"))};
+</script>
+
+<div data-include="/wp-content/themes/sim-static/main.html"></div>
+```
+
+```html
+<link rel="stylesheet" href="/wp-content/themes/sim-static/styles.css"> 
+<script src="/wp-content/themes/sim-static/scripts.js"></script> 
+<script>
+<!--- Embed the contents of the first script tag in main.html here--->
+</script> 
+```

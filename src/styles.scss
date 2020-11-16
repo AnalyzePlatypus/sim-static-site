@@ -79,8 +79,8 @@ a.url {
   }
 
   &.medium {
-    font-size: 16px;
-    padding: 8px 12px 7px 12px;
+    // font-size: 16px;
+    // padding: 8px 12px 7px 12px;
   }
 
   &.small {
@@ -363,5 +363,11 @@ $active-pulse-duration: 2s;
   }
   100% {
     transform: scale(.8);
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .mobile-hide {
+    display: none;
   }
 }

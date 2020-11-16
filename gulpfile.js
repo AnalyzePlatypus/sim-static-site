@@ -87,7 +87,7 @@ async function buildProdHtml() {
   };
 
   // return src('src/partials/main.html').
-  return src('src/index.html').
+  return src('src/partials/main.html').
     pipe(replace("<!-- INJECT_MAIN_HTML --->", mainHtmlPartial)).
     pipe(replace("/* INJECT_CONFIG_JSON */", configJson)).
     pipe(replace("/* INJECT_BUILD_INFO */", `window.BUILD_INFO=${JSON.stringify(buildInfo)};`)).
