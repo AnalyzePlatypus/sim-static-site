@@ -3,6 +3,7 @@ $color-primary-2: darken($color-primary, 3);
 $color-background: #F8F8FD;
 
 $color-background-2: #fafafa;
+$color-background-3: #F3F3FB;
 
 $color-text-1: #161737;
 $color-text-2: #4B4D6B;
@@ -96,6 +97,12 @@ a.url {
  
   .button-icon {
     transform: scale(.7) translateY(-6px);
+  }
+
+  &.large {
+    font-size: 18px;
+    padding: 10px 16px;
+    width: unset;
   }
 }
 

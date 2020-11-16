@@ -1,17 +1,12 @@
 # SIM Static Site
 
-🔥 Static Site for 
-
-* 🌍 Automatically translates to the users timezone
-* ⚡ Entire site is 21 KB (!)
-* 💪 100% Lighthouse performance score 
-* 🤫 No network requests, servers, APIs or databases
+🔥 Static Site for SIM conference
 
 ## Architecture
 
 
-* Static files (1 each of HTML, CSS, JS) are deployed to S3 behind Cloudfront (CDN)
-* Wordpress site loads all in iFrame
+* Static files are manually uploaded to the Wordpress file system
+* HTML is included in the Wordpress page using [CSI.js](https://github.com/LexmarkWeb/csi.js)
 * When the page is loaded, JS in the static page executes, parsing the injected JSON and rendering the schedule.
 
 
@@ -26,6 +21,10 @@ gulp # Watches source directory and autorebuilds on changes.
 ```
 
 > Slow build systems should not exist. This build script is optimized to run everything blazing fast. In live rebuild mode the site rebuilds in less than 16ms. Production builds take less than 4 seconds (most of which is Tailwind stripping away all unused CSS styles)
+
+## Customization
+
+See the `config` directory.
 
 ## Deployment
 
@@ -42,7 +41,7 @@ There are two deployment modes:
 
 ```bash
 gulp build # Builds dist directory
-deploy.sh # Builds, uploads to S3, and calls the Lambda to generate the actual `index.html`.
+deploy.sh # Builds and uploads to S3
 ```
 
 ## Thank You
