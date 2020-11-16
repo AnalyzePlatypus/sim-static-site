@@ -31,6 +31,7 @@ const { minify }  = require("terser");
 
 
 const defaultTask = function() {
+  execSync('node scripts/configJsonBuilder.js'); // Rebuild the JSON file once
   watch('src/**/*', series(
       removePreviousBuild,
       buildCss,
@@ -72,6 +73,8 @@ function buildProdJs() {
 }
 
 async function buildProdHtml() {
+  execSync('node scripts/configJsonBuilder.js'); // Build the latest config JSON
+
   const gitCommitHash = execSync('git rev-parse HEAD').toString();
   const configJson = "CHANNEL_CONFIG=" + fs.readFileSync("./config/config.built.json").toString();
 
