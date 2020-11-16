@@ -61,6 +61,7 @@ function buildProdCss() {
 
 function buildProdJs() {
   return src([
+    "node_modules/clipboard/dist/clipboard.js",
     "node_modules/alpinejs/dist/alpine.js",
     "src/javascript/bootstrap.min.js",
     "src/javascript/timeDifference.js"
@@ -82,6 +83,7 @@ async function buildProdHtml() {
     commitHash: gitCommitHash
   };
 
+  // return src('src/partials/main.html').
   return src('src/index.html').
     pipe(replace("<!-- INJECT_MAIN_HTML --->", mainHtmlPartial)).
     pipe(replace("/* INJECT_CONFIG_JSON */", configJson)).
@@ -112,6 +114,8 @@ async function buildHtml() {
   src("node_modules/alpinejs/dist/alpine.js")
     .pipe(symlink('tmp/'));
   
+  src("node_modules/clipboard/dist/clipboard.js",)
+    .pipe(symlink('tmp/'));
 
   src("src/bootstrap-theme.min.css")
     .pipe(symlink('tmp/'));
@@ -143,7 +147,7 @@ async function buildHtml() {
       pipe(replace("/* INJECT_CONFIG_JSON */", configJson)).
       pipe(replace("/* INJECT_BUILD_INFO */", `window.BUILD_INFO=${JSON.stringify(buildInfo)};`)).
       pipe(replace("<!-- TAILWIND_DEV -->", "<link rel=\"stylesheet\" href=\"tailwind_full.css\">")).
-      pipe(replace("<!-- JS_LIBS -->", `<script src=\"alpine.js\"></script><script src=\"bootstrap.min.js\"></script>`)).
+      pipe(replace("<!-- JS_LIBS -->", `<script src=\"alpine.js\"><script src="clipboard.js"></script></script><script src=\"bootstrap.min.js\"></script>`)).
       pipe(replace("<!-- CSS -->", `<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="bootstrap.min.css"><link rel="stylesheet" href="bootstrap-theme.min.css">`)).
       pipe(replace("<!-- JS_INLINE -->", inlinedJsScriptTag)).
       pipe(dest('tmp'));

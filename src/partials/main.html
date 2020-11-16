@@ -4,6 +4,26 @@
     /* INJECT_CONFIG_JSON */
     /* INJECT_BUILD_INFO */
  
+
+    // const MILLISECONDS_IN_MINUTE = 1000 * 60;
+
+    // From https://stackoverflow.com/a/10797177/6068782
+    window.repeatEvery = function repeatEvery(func, interval) {
+      var now = new Date(), 
+          delay = interval - now % interval;
+
+      function start() {
+          func();
+          // ... and every interval
+          setInterval(func, interval);
+      }
+
+      setTimeout(start, delay);
+    }
+
+    const ONE_MINUTE_IN_MS = 60 * 1000;
+    const ONE_HOUR_IN_MS = ONE_MINUTE_IN_MS * 60;
+
     window.getLocalTimeFromDateString = function getLocalTimeFromDateString(dateString) {
       const date = new Date(dateString);
       return date.toLocaleTimeString(undefined, {hour: "2-digit", minute: "2-digit" });
@@ -12,6 +32,8 @@
     window.getCurrentTimeZoneString = function getCurrentTimeZoneString() {
       return new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1];
     }
+
+    console.log(window.buildInfo)
     
   </script>
 
@@ -22,11 +44,18 @@
 <section x-data="{   
   CHANNEL_CONFIG, 
   eventDidStart: CHANNEL_CONFIG.eventTimestamps.start < new Date().toISOString(),
-  eventDidEnd: CHANNEL_CONFIG.eventTimestamps.end > new Date().toISOString(),
+  eventDidEnd: CHANNEL_CONFIG.eventTimestamps.end < new Date().toISOString(),
   eventCountdownText: window.timeDifference(new Date(), CHANNEL_CONFIG.eventTimestamps.start, {displayMode: 'full', sign: 'text'}),
-  eventBadgeText: this.eventDidStart ? 'Live' : (this.eventDidEnd ? 'Stream ended' : this.eventCountdownText),
-  }"> 
-  <div class="flex flex-col items-center sm:flex-row sm:justify-between items-end flex-wrap border-bottom pb-4">
+  eventBadgeText: 'Placeholder',
+  currentTime: new Date().toISOString(),
+  }"
+  
+  x-init="function () {
+    this.currentTime = new Date().toISOString(),
+    this.eventBadgeText = (this.eventDidStart && this.eventDidEnd) ? 'Stream ended' : (this.eventDidStart ? 'Live' : this.eventCountdownText)
+  }"
+  > 
+  <div class="flex flex-col items-center sm:flex-row sm:justify-between sm:items-end flex-wrap border-bottom pb-4">
     <h1 class="h1" x-text="CHANNEL_CONFIG.title">
     </h1>
     <a :href="CHANNEL_CONFIG.donateDetails.url"  target="_blank" class="sm:block button large px-8 whitespace-no-wrap mb-4" x-text="CHANNEL_CONFIG.donateDetails.title"></a>    
@@ -42,7 +71,7 @@
 
                 <h1 class="uppercase flex items-center font-weight-bold h5 text-uppercase mt-2">
                   <span x-text="channel.channelTitle" class="block mt-1"></span>
-                  <span class="channel-live-badge live ml-2 block" :class="{'live': eventDidStart && !eventDidEnd, 'idle': !eventDidStart || eventDidStart && eventDidEnd}" x-text="eventCountdownText">
+                  <span class="channel-live-badge live ml-2 block" :class="{'live': eventDidStart && !eventDidEnd, 'idle': !eventDidStart || eventDidStart && eventDidEnd}" x-text="eventBadgeText">
                   </span>
                 </h1>
 
@@ -78,20 +107,14 @@
               </div>
             </div>
 
-            <!-- <div class="channel-now-playing-widget mt-8">
-              <h2 class="text-xs uppercase border-bottom mb-1 opacity-50 font-semibold mb-1">Now Playing</h2>
-              <h3 class="text-xl">Happy, Joyous & Free</h3>
-              <h4 class="text-sm">
+            <!-- <div class="channel-now-playing-widget mt-12">
+              <h2 class="uppercase border-bottom opacity-50 font-semibold">Current Session</h2>
+              <p class="h3 mt-2">Happy, Joyous & Free</p>
+              <h4 class="h4">
                 <span>Nicholas S</span>
-                <span>•</span>
-                <span>London, UK</span>
               </h4>
-              <a href="#schedule-channel-a" class="button small mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar button-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span class="ml-2 mr-3">View Schedule</span>
-              </a>
-            </div>
-  -->
+            </div> -->
+  
             <div class="mt-12 h4">
               <p class="mb-2">
                 Zoom ID
@@ -131,24 +154,46 @@
                 <div class="modal-body">
                   <table class="text-center schedule-table" valign="middle">
                     <colgroup>
-                      <col span="1" style="width: 10%;">
+                      <col span="1" style="width: 10%;" class="micro-table-hide">
                       <col span="1" style="width: 45%;">
                       <col span="1" style="width: 45%;">
                    </colgroup>
 
                     <thead>
                       <tr class="uppercase font-bold">
-                        <td>Time (local)</td>
+                        <td class="micro-table-hide">Time (local)</td>
                         <td>Title</td>
-                        <td>Details</td>
+                        <td>Details</td> 
                       </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody> 
                       <template x-for="session in channel.sessions">
-                        <tr>
-                          <td x-text="getLocalTimeFromDateString(session.startTimestamp)"></td>
-                          <td x-text="session.title"></td>
+                        <tr class="h4" :class="{
+                          'line-through': currentTime > new Date(new Date(session.startTimestamp).getTime() + ONE_HOUR_IN_MS).toISOString(),
+                          'highlighted-cell':  (currentTime > new Date(session.startTimestamp).toISOString()) && (currentTime < new Date(new Date(session.startTimestamp).getTime() + ONE_HOUR_IN_MS).toISOString()),
+                          'hidden': (currentTime > new Date(new Date(session.startTimestamp).getTime() + (ONE_HOUR_IN_MS * 3)).toISOString())
+                        }">
+                          <td class="micro-table-hide font-semibold" x-text="getLocalTimeFromDateString(session.startTimestamp)"></td>
+                          <td>
+                            <div class="flex flex-col items-center">
+                              
+                              <div class="font-semibold text-primary micro-table-show" x-text="getLocalTimeFromDateString(session.startTimestamp)"></div>
+
+                              <div class="flex items-center flex-col sm:flex-row">
+                                <div class="channel-live-badge relative live-passive block mr-2" x-show="(currentTime > new Date(session.startTimestamp).toISOString()) && (currentTime < new Date(new Date(session.startTimestamp).getTime() + ONE_HOUR_IN_MS).toISOString())">
+                                  <div class="live-indicator"></div>
+                                  Live
+                                </div>
+
+                                <p class="h5 uppercase" x-show="(currentTime > new Date(session.startTimestamp).toISOString()) && (currentTime < new Date(new Date(session.startTimestamp).getTime() + ONE_HOUR_IN_MS).toISOString())">
+                                  <span x-text="window.timeDifference(new Date(), new Date(session.startTimestamp), {displayMode: 'short', sign: 'text'})"></span>
+                                </p>
+                              </div>
+                             
+                              <div x-text="session.title"></div>
+                            </div>
+                          </td>
                           <td x-text="session.speaker"></td>
                         </tr>
                       </template>
@@ -158,25 +203,10 @@
               </div>
             </div>
           </div>
+
         </div> <!-- End of column -->
 
       </template>
-  </div>
-
-  <div>
-    <h4>
-      <span>Timezone</span>
-      <span class="text-primary" x-text="window.getCurrentTimeZoneString()"></span>
-    </h4>
-
-    <h4 class="mt-2"> 
-      <span x-text="(window.BUILD_INFO.buildType == 'prod' ? 'Production' : 'Development') + ' build'"></span>
-      <span x-text="(window.BUILD_INFO.commitHash && window.BUILD_INFO.commitHash.length > 0) ? ' ' + window.BUILD_INFO.commitHash.substring(0,6) : ''" class="text-primary"></span>
-    </h4>
-    <h4 class="mt-2">
-      <span>Deployed </span>
-      <span class="text-primary" x-text="window.timeDifference(new Date(), window.BUILD_INFO.builtAt, {displayMode: 'full', sign: 'text'})"></span>
-    </h4>
   </div>
 </div>
 </section>

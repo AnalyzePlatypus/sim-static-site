@@ -29,6 +29,10 @@ gulp # Watches source directory and autorebuilds on changes.
 
 ## Deployment
 
+There are two deployment modes:
+1. Static page to S3
+2. Static assets to upload to Wordpress
+
 `gulp build` creates three files in `dist`:
 
 * `index.html`
@@ -50,3 +54,6 @@ deploy.sh # Builds, uploads to S3, and calls the Lambda to generate the actual `
 * AWS S3, Cloudfront, & Lambda
 
 
+## Appendixes
+
+### Deploying on Wordpress
