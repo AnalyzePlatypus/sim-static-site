@@ -150,7 +150,7 @@ async function buildHtml() {
       pipe(replace("/* INJECT_CONFIG_JSON */", configJson)).
       pipe(replace("/* INJECT_BUILD_INFO */", `window.BUILD_INFO=${JSON.stringify(buildInfo)};`)).
       pipe(replace("<!-- TAILWIND_DEV -->", "<link rel=\"stylesheet\" href=\"tailwind_full.css\">")).
-      pipe(replace("<!-- JS_LIBS -->", `<script src=\"alpine.js\"><script src="clipboard.js"></script></script><script src=\"bootstrap.min.js\"></script>`)).
+      pipe(replace("<!-- JS_LIBS -->", `<script src=\"alpine.js\"></script><script src="clipboard.js"></script><script src=\"bootstrap.min.js\"></script>`)).
       pipe(replace("<!-- CSS -->", `<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="bootstrap.min.css"><link rel="stylesheet" href="bootstrap-theme.min.css">`)).
       pipe(replace("<!-- JS_INLINE -->", inlinedJsScriptTag)).
       pipe(dest('tmp'));
