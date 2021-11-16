@@ -5,7 +5,7 @@ const { src, watch, symlink, dest, series, parallel } = require('gulp');
 const  { execSync } = require("child_process");
 
 var sass = require('gulp-sass');
-sass.compiler = require('node-sass');
+//sass.compiler = require('node-sass');
 
 const postcss = require('gulp-postcss');
 
